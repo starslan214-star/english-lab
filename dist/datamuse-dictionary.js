@@ -6,6 +6,12 @@ function datamuseCard(){
   return `<div class="card dict-datamuse"><div class="mini-title"><h3>${datamuseText('开放词典补充','Open dictionary supplement')}</h3><span>Datamuse · Wiktionary + WordNet</span></div><div id="dict-datamuse" aria-live="polite">${datamuseText('正在读取……','Loading…')}</div></div>`;
 }
 
+// 即使第三方接口暂时不可用，也明确显示本地词库状态，避免查询看起来没有反应。
+function localDictionaryNotice(){
+  const local=document.querySelector('.dict-results>.card');if(!local)return;
+  local.insertAdjacentHTML('afterbegin',`<p class="dict-ready">${datamuseText('本地 ECDICT 已就绪；下方两个开放英英来源会并行查询。','Local ECDICT is ready; two open English sources are queried in parallel.')}</p>`);
+}
+
 async function loadDatamuse(){
   const term=query.trim(),target=document.getElementById('dict-datamuse'),serial=++datamuseSerial;
   if(!target||!dictEnglish(term))return;
@@ -22,7 +28,7 @@ render=function(){
   renderBeforeDatamuse();
   if(page!=='dictionary'||!query.trim())return;
   const results=document.querySelector('.dict-results');
-  if(results&&dictEnglish(query.trim())){results.insertAdjacentHTML('beforeend',datamuseCard());loadDatamuse()}
+  if(results&&dictEnglish(query.trim())){localDictionaryNotice();results.insertAdjacentHTML('beforeend',datamuseCard());loadDatamuse()}
   const providers=document.querySelector('.dict-providers');
   if(providers)providers.innerHTML=`<h3>${datamuseText('已接入的站内词典','Integrated dictionaries')}</h3><div><b>ECDICT</b><span>${datamuseText('本地英汉释义、音标与考试标签。','Local English-Chinese meanings, phonetics, and exam tags.')}</span></div><div><b>Free Dictionary</b><span>${datamuseText('英英释义、例句与同义词。','English definitions, examples, and synonyms.')}</span></div><div><b>Datamuse</b><span>${datamuseText('整合 Wiktionary 与 WordNet 定义及相关词。','Wiktionary and WordNet definitions plus related words.')}</span></div>`;
 };

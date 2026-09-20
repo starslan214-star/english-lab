@@ -5,7 +5,10 @@ const dictEnglish=text=>/^[a-z][a-z -]{0,44}$/i.test(text);
 const dictChinese=text=>/[\u3400-\u9fff]/.test(text);
 const dictLocal=name=>{
   const term=name.toLowerCase();
-  if(dictEnglish(name))return WORDS.filter(item=>item.w===term).slice(0,1);
+  if(dictEnglish(name)){
+    const exact=WORDS.filter(item=>item.w===term);
+    return exact.length?exact.slice(0,1):WORDS.filter(item=>item.w.startsWith(term)).slice(0,8);
+  }
   if(dictChinese(name))return WORDS.filter(item=>item.zh.includes(name)).slice(0,12);
   return [];
 };
@@ -30,8 +33,7 @@ async function dictGetStatus(){
 }
 async function dictLoad(){
   const term=query.trim(),serial=++dictSerial;if(!term||page!=='dictionary')return;
-  if(baiduReady===null)await dictGetStatus();
-  if(serial!==dictSerial||page!=='dictionary')return;
+  if(baiduReady===null)void dictGetStatus();
   dictShowStatus();
   const english=document.getElementById('dict-english');
   if(english&&dictEnglish(term))void (async()=>{
@@ -40,7 +42,8 @@ async function dictLoad(){
     }catch{if(serial===dictSerial&&english)english.textContent=dictText('英英词典暂时无法连接。','English dictionary is temporarily unavailable.')}
   })();
   const baidu=document.getElementById('dict-baidu');if(!baidu)return;
-  if(!baiduReady){baidu.textContent=dictText('请先在下方填写 APP ID 和密钥并连接。','Connect your APP ID and secret key below.');return}
+  if(baiduReady===null){baidu.textContent=dictText('百度翻译为可选功能；开放词典结果正在上方读取。','Baidu Translate is optional; open-dictionary results are loading above.');return}
+  if(!baiduReady){baidu.textContent=dictText('开放词典无需配置即可使用；如需整句中英翻译，可在下方连接百度翻译。','The open dictionaries work without setup. Connect Baidu below only for sentence translation.');return}
   baidu.textContent=dictText('正在翻译……','Translating…');
   try{const response=await fetch('/api/baidu/translate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:term,from:dictChinese(term)?'zh':'en',to:dictChinese(term)?'en':'zh'})});const data=await response.json();if(serial!==dictSerial||page!=='dictionary')return;
     baidu.innerHTML=response.ok?data.results.map(item=>`<div class="dict-translation"><span>${esc(item.source)}</span><strong>${esc(item.target)}</strong></div>`).join(''):`<p class="muted-text">${esc(data.error||dictText('翻译失败，请稍后重试。','Translation failed. Try again later.'))}</p>`;

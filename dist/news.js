@@ -18,11 +18,7 @@ function latestNewsMarkup(){
   return `<section class="latest-news"><div class="mini-title"><div><div class="eyebrow">${newsText('官方来源','OFFICIAL SOURCES')}</div><h2 class="section-heading" style="margin:5px 0 0">${newsText('近期技术文章','Recent tech articles')}</h2></div><span>${newsPartial?newsText('部分来源暂时不可用','Some sources unavailable'):newsText('标题与日期来自原站','Titles and dates from source')}</span></div><p class="muted-text">${newsText('这些是官方原文链接，通常比 A1 练习更难。建议先完成下方短文，再尝试阅读标题和原文。','These official articles may be harder than A1 practice. Try the short reading below first, then explore the headlines and original articles.')}</p><div class="category-row" style="margin:17px 0">${tabs}</div>${body}</section>`;
 }
 function addNewsToPage(){
-  if(page==='reading'){
-    const content=$('#app .content');if(!content)return;
-    content.querySelector('.page-head')?.insertAdjacentHTML('afterend',latestNewsMarkup());
-    content.querySelector(':scope > .category-row')?.insertAdjacentHTML('beforebegin',`<h2 class="section-heading">${newsText('A1 分级练习','A1 graded practice')}</h2>`);
-  }
+  // 阅读页只展示可在本站完整阅读的原创分级文章，避免点开后跳到新标签页。
   if(page==='today'&&newsItems.length){
     const item=newsItems[0],card=$('#app .article-card');
     card?.insertAdjacentHTML('afterend',`<section class="card news-card news-home"><div class="news-meta"><span class="tag">${newsText('近期原文','RECENT ARTICLE')}</span><span>${esc(item.publishedAt.slice(0,10))} · ${esc(item.source)}</span></div><h3>${esc(item.title)}</h3><a href="${esc(item.url)}" target="_blank" rel="noopener noreferrer">${newsText('打开官方原文 ↗','Read the official article ↗')}</a></section>`);

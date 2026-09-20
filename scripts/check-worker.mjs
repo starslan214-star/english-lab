@@ -25,7 +25,7 @@ assert.equal(adaptiveGameUi.status,200);
 assert.match(await adaptiveGameUi.text(),/自适应单词游戏/);
 const versionUi=await worker.fetch(new Request(origin+'/version.js'),env);
 assert.equal(versionUi.status,200);
-assert.match(await versionUi.text(),/1\.3\.0/);
+assert.match(await versionUi.text(),/1\.4\.0/);
 const datamuseUi=await worker.fetch(new Request(origin+'/datamuse-dictionary.js'),env);
 assert.equal(datamuseUi.status,200);
 assert.match(await datamuseUi.text(),/Wiktionary \+ WordNet/);
@@ -111,6 +111,8 @@ try{
   assert.match(removed.headers.get('Set-Cookie'),/Max-Age=0/);
 }finally{globalThis.fetch=originalFetch}
 globalThis.fetch=async url=>{
+  if(String(url).includes('gutendex.com/books/11'))return new Response(JSON.stringify({title:"Alice's Adventures in Wonderland",authors:[{name:'Carroll, Lewis'}],formats:{'text/plain; charset=utf-8':'https://www.gutenberg.org/cache/epub/11/pg11.txt'}}));
+  if(String(url).includes('gutenberg.org/cache/epub/11/'))return new Response('*** START OF THE PROJECT GUTENBERG EBOOK ALICE ***\n'+('Alice followed the White Rabbit into Wonderland.\n\n'.repeat(20))+'*** END OF THE PROJECT GUTENBERG EBOOK ALICE ***');
   if(String(url).includes('dictionaryapi.dev'))return new Response(JSON.stringify([{meanings:[{definitions:[{definition:'the power to do something',example:'She has the ability to learn quickly.'}]}]}]));
   if(String(url).includes('api.datamuse.com/words?sp='))return new Response(JSON.stringify([{word:'ability',defs:['n\tthe quality of being able to do something'],tags:['pron:əˈbɪləti']}]))
   if(String(url).includes('api.datamuse.com/words?rel_syn='))return new Response(JSON.stringify([{word:'capability'},{word:'capacity'}]));
@@ -127,6 +129,9 @@ try{
   const datamuseData=await datamuse.json();
   assert.equal(datamuseData.definitions[0].partOfSpeech,'n');
   assert.deepEqual(datamuseData.related,['capability','capacity']);
+  const openBook=await worker.fetch(new Request(origin+'/api/books/11'),{});
+  assert.equal(openBook.status,200);
+  assert.match((await openBook.json()).content,/White Rabbit/);
   const news=await worker.fetch(new Request(origin+'/api/news'),{});
   assert.equal(news.status,200);
   const items=(await news.json()).items;

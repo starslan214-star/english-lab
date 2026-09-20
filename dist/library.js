@@ -5,6 +5,15 @@ state.library=Array.isArray(state.library)?state.library:[];
 let libraryBookId=null;
 const libraryText=(zh,en)=>uiLanguage==='zh'?zh:en;
 const libraryLimit=350000;
+const openBooks=[
+  {id:11,title:'Alice’s Adventures in Wonderland',author:'Lewis Carroll',level:'A2+'},
+  {id:55,title:'The Wonderful Wizard of Oz',author:'L. Frank Baum',level:'A2+'},
+  {id:17396,title:'The Secret Garden',author:'Frances Hodgson Burnett',level:'B1'},
+  {id:1661,title:'The Adventures of Sherlock Holmes',author:'Arthur Conan Doyle',level:'B1'},
+  {id:84,title:'Frankenstein',author:'Mary Shelley',level:'B2'},
+  {id:1342,title:'Pride and Prejudice',author:'Jane Austen',level:'B2'}
+];
+function openBookCatalog(){return `<section class="card open-library"><div class="mini-title"><h3>${libraryText('开放图书馆','Open book library')}</h3><span>Project Gutenberg</span></div><p>${libraryText('选择一本公版英文书，导入后全文在本站阅读。','Choose a public-domain English book and read the full text here.')}</p><div class="open-book-grid">${openBooks.map(book=>`<article><span>${book.level}</span><h4>${esc(book.title)}</h4><small>${esc(book.author)}</small><button class="secondary" data-open-book="${book.id}">${libraryText('导入并阅读','Import & read')}</button></article>`).join('')}</div><p id="open-library-message" class="muted-text">${libraryText('按需从 Gutendex 目录读取，正文来源为 Project Gutenberg。非美国地区请确认当地版权状态。','Loaded on demand through Gutendex; text comes from Project Gutenberg. Check local copyright law outside the U.S.')}</p></section>`}
 
 function libraryListPage(){
   const books=state.library.slice().reverse();
@@ -22,7 +31,7 @@ function libraryReaderPage(){
 }
 
 const renderBeforeLibrary=render;
-render=function(){renderBeforeLibrary();if(page==='library'){$('#app').innerHTML=libraryListPage();localizePage()}if(page==='library-reader'){$('#app').innerHTML=libraryReaderPage();localizePage();document.title=`English Lab · ${libraryText('阅读','Reading')}`}};
+render=function(){renderBeforeLibrary();if(page==='library'){$('#app').innerHTML=libraryListPage();document.querySelector('.library-grid')?.insertAdjacentHTML('beforebegin',openBookCatalog());localizePage()}if(page==='library-reader'){$('#app').innerHTML=libraryReaderPage();localizePage();document.title=`English Lab · ${libraryText('阅读','Reading')}`}};
 
 function addLibraryBook(title,content){
   const clean=content.replace(/\r\n/g,'\n').trim();if(!clean){toast(libraryText('请先粘贴或选择英文内容','Add some English text first'));return false}if(clean.length>libraryLimit){toast(libraryText('内容过长，请拆分后导入','The text is too long; split it first'));return false}
@@ -35,9 +44,15 @@ document.addEventListener('change',async event=>{
   if(event.target.id==='data-import'){const file=event.target.files?.[0];if(!file)return;try{const backup=JSON.parse(await file.text());if(backup?.format!=='english-lab-backup'||!backup.state||typeof backup.state!=='object')throw new Error();const restored=backup.state;state={...state,...restored,reviews:{...state.reviews,...restored.reviews},learned:[...new Set([...(state.learned||[]),...(restored.learned||[])])],read:[...new Set([...(state.read||[]),...(restored.read||[])])],events:[...(state.events||[]),...(restored.events||[])],notebook:[...(state.notebook||[]),...(restored.notebook||[])],library:[...(state.library||[]),...(restored.library||[])]};save();toast(libraryText('备份已恢复','Backup restored'));render()}catch{toast(libraryText('备份文件无效','Invalid backup file'))}event.target.value=''}
 });
 
-document.addEventListener('click',clickEvent=>{
+document.addEventListener('click',async clickEvent=>{
   const button=clickEvent.target.closest('button');if(!button)return;
   if(button.id==='library-add'&&page==='library'){clickEvent.preventDefault();clickEvent.stopImmediatePropagation();addLibraryBook(document.getElementById('library-title').value.trim(),document.getElementById('library-content').value);return}
+  if(button.dataset.openBook&&page==='library'){
+    clickEvent.preventDefault();clickEvent.stopImmediatePropagation();button.disabled=true;button.textContent=libraryText('正在导入……','Importing…');
+    const message=document.getElementById('open-library-message');message.textContent=libraryText('正在读取图书正文，请稍候……','Loading the book text…');
+    try{const response=await fetch('/api/books/'+button.dataset.openBook),data=await response.json();if(!response.ok)throw new Error(data.error||libraryText('导入失败','Import failed'));addLibraryBook(`${data.title} — ${data.author}`,data.content)}
+    catch(error){message.textContent=error.message;button.disabled=false;button.textContent=libraryText('重试导入','Try again')}return
+  }
   if(button.dataset.libraryOpen){clickEvent.preventDefault();clickEvent.stopImmediatePropagation();libraryBookId=button.dataset.libraryOpen;page='library-reader';render();return}
   if(button.dataset.libraryLookup){clickEvent.preventDefault();clickEvent.stopImmediatePropagation();query=button.dataset.libraryLookup.toLowerCase();navigate('dictionary');return}
   if(button.dataset.libraryDelete){clickEvent.preventDefault();clickEvent.stopImmediatePropagation();if(confirm(libraryText('确定删除这篇本地资料吗？','Delete this local reading?'))){state.library=state.library.filter(item=>item.id!==button.dataset.libraryDelete);save();render()}return}
