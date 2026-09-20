@@ -25,7 +25,10 @@ assert.equal(adaptiveGameUi.status,200);
 assert.match(await adaptiveGameUi.text(),/自适应单词游戏/);
 const versionUi=await worker.fetch(new Request(origin+'/version.js'),env);
 assert.equal(versionUi.status,200);
-assert.match(await versionUi.text(),/1\.2\.0/);
+assert.match(await versionUi.text(),/1\.3\.0/);
+const datamuseUi=await worker.fetch(new Request(origin+'/datamuse-dictionary.js'),env);
+assert.equal(datamuseUi.status,200);
+assert.match(await datamuseUi.text(),/Wiktionary \+ WordNet/);
 const settingsUi=await worker.fetch(new Request(origin+'/settings.js'),env);
 assert.equal(settingsUi.status,200);
 assert.match(await settingsUi.text(),/下载完整备份/);
@@ -109,6 +112,8 @@ try{
 }finally{globalThis.fetch=originalFetch}
 globalThis.fetch=async url=>{
   if(String(url).includes('dictionaryapi.dev'))return new Response(JSON.stringify([{meanings:[{definitions:[{definition:'the power to do something',example:'She has the ability to learn quickly.'}]}]}]));
+  if(String(url).includes('api.datamuse.com/words?sp='))return new Response(JSON.stringify([{word:'ability',defs:['n\tthe quality of being able to do something'],tags:['pron:əˈbɪləti']}]))
+  if(String(url).includes('api.datamuse.com/words?rel_syn='))return new Response(JSON.stringify([{word:'capability'},{word:'capacity'}]));
   if(String(url).includes('blog.google'))return new Response('<rss><channel><item><title>AI &amp; testing</title><link>https://blog.google/example/</link><pubDate>Tue, 15 Sep 2026 12:00:00 GMT</pubDate></item></channel></rss>');
   if(String(url).includes('selenium.dev'))return new Response('<a href="/blog/2026/selenium-test/" class=selenium-link>Selenium &amp; testing</a></h5><p><small>September 9, 2026</small>');
   throw new Error('意外的文章来源');
@@ -117,6 +122,11 @@ try{
   const dictionary=await worker.fetch(new Request(origin+'/api/dictionary/ability'),{});
   assert.equal(dictionary.status,200);
   assert.equal((await dictionary.json()).definition,'the power to do something');
+  const datamuse=await worker.fetch(new Request(origin+'/api/datamuse/ability'),{});
+  assert.equal(datamuse.status,200);
+  const datamuseData=await datamuse.json();
+  assert.equal(datamuseData.definitions[0].partOfSpeech,'n');
+  assert.deepEqual(datamuseData.related,['capability','capacity']);
   const news=await worker.fetch(new Request(origin+'/api/news'),{});
   assert.equal(news.status,200);
   const items=(await news.json()).items;

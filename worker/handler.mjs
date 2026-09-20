@@ -1,6 +1,6 @@
 // English Lab 服务端：安全保存 DeepSeek 会话密钥，并提供静态页面。
 import {getNews} from './news.mjs';
-import {getDictionaryDefinition} from './dictionary.mjs';
+import {getDictionaryDefinition,getDatamuseDefinition} from './dictionary.mjs';
 import {translateBaidu} from './baidu.mjs';
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
@@ -55,6 +55,12 @@ async function deepSeek(path,key,options={}){
   return {response,data};
 }
 async function handleApi(request,env,path){
+  if(path.startsWith('/api/datamuse/')&&request.method==='GET'){
+    let name;
+    try{name=decodeURIComponent(path.slice('/api/datamuse/'.length)).toLowerCase()}catch{return json({error:'单词格式无效。'},400)}
+    if(!/^[a-z][a-z -]{0,44}$/.test(name))return json({error:'单词格式无效。'},400);
+    try{const result=await getDatamuseDefinition(name);return result?json(result):json({error:'该来源暂未收录此词。'},404)}catch{return json({error:'Datamuse 词典暂时不可用。'},503)}
+  }
   if(path.startsWith('/api/dictionary/')&&request.method==='GET'){
     let name;
     try{name=decodeURIComponent(path.slice('/api/dictionary/'.length)).toLowerCase()}catch{return json({error:'单词格式无效。'},400)}

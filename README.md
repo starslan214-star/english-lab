@@ -1,6 +1,8 @@
 # English Lab
 
-当前产品版本：**1.2.0**
+当前产品版本：**1.3.0**
+
+站内词典已整合 ECDICT、Free Dictionary API 和 Datamuse（Wiktionary + WordNet 数据），查询结果直接显示在网站内。
 
 面向英语初学者的软件测试英语学习网站。默认中文界面，可切换英文；保留英文单词、例句和阅读原文，并提供中文辅助。
 
