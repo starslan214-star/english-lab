@@ -1,24 +1,8 @@
-// 按用户点击从 Gutendex 目录读取公版书元数据与纯文本，不批量抓取。
-const allowedBooks=new Set([11,55,84,1342,1661,17396]);
+// 开放图书按固定书目直接读取纯文本，减少目录服务失败造成的导入中断。
+const books=new Map([
+  [11,{title:"Alice's Adventures in Wonderland",author:'Lewis Carroll'}],[55,{title:'The Wonderful Wizard of Oz',author:'L. Frank Baum'}],[84,{title:'Frankenstein',author:'Mary Shelley'}],[1342,{title:'Pride and Prejudice',author:'Jane Austen'}],[1661,{title:'The Adventures of Sherlock Holmes',author:'Arthur Conan Doyle'}],[17396,{title:'The Secret Garden',author:'Frances Hodgson Burnett'}]
+]);
 const bookCache=new Map();
-
-function cleanBookText(text){
-  const start=text.search(/\*\*\* START OF (?:THE|THIS) PROJECT GUTENBERG EBOOK/i);
-  const end=text.search(/\*\*\* END OF (?:THE|THIS) PROJECT GUTENBERG EBOOK/i);
-  const body=text.slice(start>=0?text.indexOf('\n',start)+1:0,end>0?end:undefined).replace(/\r\n/g,'\n').trim();
-  return body.slice(0,900000);
-}
-
-export async function getOpenBook(id){
-  const number=Number(id);if(!allowedBooks.has(number))return null;
-  const cached=bookCache.get(number);if(cached&&Date.now()-cached.at<86400000)return cached.value;
-  const metadataResponse=await fetch(`https://gutendex.com/books/${number}/`,{signal:AbortSignal.timeout(8000)});
-  if(!metadataResponse.ok)return null;
-  const metadata=await metadataResponse.json(),formats=metadata.formats||{};
-  const textUrl=formats['text/plain; charset=utf-8']||formats['text/plain; charset=us-ascii']||formats['text/plain'];
-  if(!textUrl||!/^https:\/\//.test(textUrl))return null;
-  const textResponse=await fetch(textUrl,{signal:AbortSignal.timeout(12000)});if(!textResponse.ok)return null;
-  const content=cleanBookText(await textResponse.text());if(content.length<500)return null;
-  const value={id:number,title:String(metadata.title||'Untitled').slice(0,160),author:String(metadata.authors?.[0]?.name||'Unknown').slice(0,120),content,source:'Project Gutenberg',sourcePage:`https://www.gutenberg.org/ebooks/${number}`};
-  if(bookCache.size>=12)bookCache.delete(bookCache.keys().next().value);bookCache.set(number,{at:Date.now(),value});return value;
-}
+function cleanBookText(text){const start=text.search(/\*\*\* START OF (?:THE|THIS) PROJECT GUTENBERG EBOOK/i),end=text.search(/\*\*\* END OF (?:THE|THIS) PROJECT GUTENBERG EBOOK/i);return text.slice(start>=0?text.indexOf('\n',start)+1:0,end>0?end:undefined).replace(/\r\n/g,'\n').trim().slice(0,1200000)}
+async function fetchFirstText(urls){for(const url of urls){try{const response=await fetch(url,{signal:AbortSignal.timeout(12000),headers:{Accept:'text/plain'}});if(response.ok){const text=await response.text();if(text.length>500)return text}}catch{}}return ''}
+export async function getOpenBook(id){const number=Number(id),metadata=books.get(number);if(!metadata)return null;const cached=bookCache.get(number);if(cached&&Date.now()-cached.at<86400000)return cached.value;const raw=await fetchFirstText([`https://www.gutenberg.org/cache/epub/${number}/pg${number}.txt`,`https://www.gutenberg.org/files/${number}/${number}-0.txt`,`https://www.gutenberg.org/files/${number}/${number}.txt`]);if(!raw)return null;const content=cleanBookText(raw);if(content.length<500)return null;const value={id:number,...metadata,content,source:'Project Gutenberg',sourcePage:`https://www.gutenberg.org/ebooks/${number}`};if(bookCache.size>=12)bookCache.delete(bookCache.keys().next().value);bookCache.set(number,{at:Date.now(),value});return value}

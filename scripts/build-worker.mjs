@@ -1,7 +1,7 @@
 // 将前端文件打包进单个 Worker，确保在线版与 API 同源。
 import {readFile,writeFile,mkdir} from 'node:fs/promises';
 const root=new URL('../',import.meta.url);
-const files=['index.html','fsrs.js','review-core.js','app.js','reading-library.js','vocab-data.js','vocab-ui.js','i18n.js','ai.js','news.js','dictionary-ui.js','ai-dictionary.js','datamuse-dictionary.js','notebook.js','settings.js','library.js','adaptive-game.js','version.js','style.css','i18n.css','news.css','vocab.css','dictionary.css','notebook.css','settings.css','library.css','adaptive-game.css','print.css','sw.js','manifest.webmanifest','icon.svg'];
+const files=['index.html','fsrs.js','review-core.js','app.js','reading-library.js','vocab-data.js','vocab-ui.js','i18n.js','ai.js','news.js','dictionary-ui.js','ai-dictionary.js','datamuse-dictionary.js','dictionary-layout.js','notebook.js','settings.js','library.js','adaptive-game.js','version.js','style.css','i18n.css','news.css','vocab.css','dictionary.css','notebook.css','settings.css','library.css','adaptive-game.css','print.css','sw.js','manifest.webmanifest','icon.svg'];
 const assets={};
 for(const name of files)assets[name]=await readFile(new URL(`dist/${name}`,root),'utf8');
 const handler=await readFile(new URL('worker/handler.mjs',root),'utf8');

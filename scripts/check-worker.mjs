@@ -25,7 +25,7 @@ assert.equal(adaptiveGameUi.status,200);
 assert.match(await adaptiveGameUi.text(),/自适应单词游戏/);
 const versionUi=await worker.fetch(new Request(origin+'/version.js'),env);
 assert.equal(versionUi.status,200);
-assert.match(await versionUi.text(),/1\.4\.0/);
+assert.match(await versionUi.text(),/1\.5\.0/);
 const datamuseUi=await worker.fetch(new Request(origin+'/datamuse-dictionary.js'),env);
 assert.equal(datamuseUi.status,200);
 assert.match(await datamuseUi.text(),/Wiktionary \+ WordNet/);
