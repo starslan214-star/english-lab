@@ -1,0 +1,14 @@
+.notebook-toolbar{display:flex;justify-content:flex-end;margin:-6px 0 14px}
+.notebook-list{display:grid;gap:7px;max-height:550px;overflow:auto}
+.notebook-list button{display:flex;justify-content:space-between;gap:10px;align-items:center;background:#f7faf9;border:1px solid #e2ecea;border-radius:9px;padding:12px;text-align:left;color:#315962;cursor:pointer}
+.notebook-list button.selected{border-color:#8dcdb8;background:#e8f5ef}
+.notebook-list b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.notebook-list small{white-space:nowrap;color:#799097}
+.notebook-entry-head{display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:22px}
+.notebook-entry-head h2{margin:7px 0;overflow-wrap:anywhere}
+.notebook-entry-head small{color:#7d9297}
+.notebook-page label{display:block;font-size:13px;font-weight:750;margin-bottom:8px;color:#3f626b}
+.notebook-page textarea{width:100%;box-sizing:border-box;line-height:1.6;resize:vertical}
+.notebook-page .action-row{margin-top:12px}
+.dict-query-title button{white-space:nowrap}
+@media(max-width:760px){.notebook-entry-head{display:block}.notebook-entry-head button{margin-top:12px}.dict-query-title{flex-wrap:wrap}.dict-query-title span{white-space:normal}}

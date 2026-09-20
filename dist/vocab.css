@@ -1,0 +1,24 @@
+.vocab-filters{padding:20px;margin-bottom:22px}
+.vocab-filter-label{font-size:12px;font-weight:800;color:#56717b;margin:3px 0 10px}
+.vocab-filters .category-row{margin-bottom:17px;flex-wrap:wrap}
+.vocab-filters .search-row{margin-top:5px}
+.vocab-filters .muted-text{margin:14px 0 0;font-size:12px}
+.vocab-english{margin:17px 0;color:#526b75;font-size:14px;line-height:1.6}
+.vocab-english p{margin:7px 0}
+.vocab-english small{font-size:11px;color:#84989e}
+.vocab-dictionary-links{display:flex;gap:15px;margin:12px 0 19px;font-size:13px;font-weight:700}
+.vocab-dictionary-links a{color:#26785f;text-decoration:none}
+.vocab-dictionary-links a:hover{text-decoration:underline}
+.definition-zh-inline{font-size:14px;color:#56717b;margin:9px 0 17px}
+.vocab-empty{padding:28px;color:#657c85}
+.vocab-pagination{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:16px;font-size:12px;color:#67818a}
+.vocab-pagination button{padding:9px 12px}
+.vocab-progress-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px 25px;margin-top:20px}
+.vocab-progress-item{min-width:0}
+.vocab-progress-item>div:first-child{display:flex;justify-content:space-between;gap:8px;font-size:13px;color:#37545e}
+.vocab-progress-item .progress-line{margin-top:8px}
+.word-card h2{overflow-wrap:anywhere}
+.word-list button{min-width:0;gap:10px}
+.word-list button b{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.word-list button small{flex:0 1 47%;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:right}
+@media(max-width:760px){.vocab-progress-grid{grid-template-columns:1fr}.vocab-filters .search-row{flex-wrap:wrap}.vocab-filters .search-row input{flex-basis:100%}}

@@ -1,0 +1,10 @@
+@media print {
+  body { background: #fff; color: #111; }
+  .sidebar, .topbar, .page-head, .category-row, .action-row, .quiz-options, .footer-note, aside, #toast { display: none !important; }
+  .content { max-width: none; padding: 0; }
+  .two-col { display: block; }
+  .card { box-shadow: none; border: 0; padding: 0; }
+  .reading-body { font-size: 14pt; line-height: 1.8; }
+  .reading-body button { border: 0; }
+  article:after { content: 'Notes:\A ________________________________\A ________________________________\A ________________________________'; white-space: pre-wrap; display: block; margin-top: 28px; line-height: 2; }
+}

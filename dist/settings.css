@@ -1,0 +1,9 @@
+.settings-page .card{padding:24px}
+.settings-page h2{font-size:19px;margin:0 0 14px}
+.settings-actions{display:flex;flex-wrap:wrap;gap:10px;margin:22px 0 14px}
+.settings-import{display:inline-flex;align-items:center;border:1px solid #bfd6d4;border-radius:8px;padding:10px 14px;color:#245d59;background:#fff;font-size:13px;font-weight:750;cursor:pointer}
+.settings-import input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+.settings-status{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:12px;padding:12px 0;border-top:1px solid #e6efee;font-size:13px;color:#375c64}
+.settings-status b{color:#187459;font-size:12px}
+.settings-status button{font-size:12px;padding:8px 10px}
+@media(max-width:760px){.settings-status{grid-template-columns:1fr auto}.settings-status button{grid-column:1/-1;justify-self:start}}
