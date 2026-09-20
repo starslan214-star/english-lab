@@ -25,7 +25,7 @@ assert.equal(adaptiveGameUi.status,200);
 assert.match(await adaptiveGameUi.text(),/自适应单词游戏/);
 const versionUi=await worker.fetch(new Request(origin+'/version.js'),env);
 assert.equal(versionUi.status,200);
-assert.match(await versionUi.text(),/1\.0\.0/);
+assert.match(await versionUi.text(),/1\.1\.0/);
 const settingsUi=await worker.fetch(new Request(origin+'/settings.js'),env);
 assert.equal(settingsUi.status,200);
 assert.match(await settingsUi.text(),/下载完整备份/);
