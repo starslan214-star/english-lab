@@ -1,6 +1,6 @@
 # English Lab
 
-当前产品版本：**1.6.0**
+当前产品版本：**1.6.1**
 
 站内词典已整合 ECDICT、Free Dictionary API 和 Datamuse（Wiktionary + WordNet 数据），查询结果直接显示在网站内。
 

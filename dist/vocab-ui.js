@@ -65,7 +65,7 @@ render=function(){renderWithVocabulary();if(page==='words'){
   const item=selectedVocabularyWord(),target=document.getElementById('vocab-english');
   if(item&&target){
     target.dataset.word=item.w;
-    target.insertAdjacentHTML('afterend',`<div class="vocab-dictionary-links"><a href="https://www.oxfordlearnersdictionaries.com/search/english/?q=${encodeURIComponent(item.w)}" target="_blank" rel="noopener noreferrer">Oxford ↗</a><a href="https://dict.youdao.com/result?word=${encodeURIComponent(item.w)}&lang=en" target="_blank" rel="noopener noreferrer">有道 ↗</a></div>`);
+    target.insertAdjacentHTML('afterend',`<div class="vocab-dictionary-links"><button type="button" class="dict-study" data-vocab-dictionary="${esc(item.w)}">${vocabText('在站内词典查询 →','Open in site dictionary →')}</button></div>`);
     if(!item.def)showVocabDefinition(item.w,'vocab-english');
   }
 }else if(page==='dictionary'&&query){
@@ -76,6 +76,7 @@ render=function(){renderWithVocabulary();if(page==='words'){
 }};
 document.addEventListener('click',clickEvent=>{
   const button=clickEvent.target.closest('button');if(!button)return;
+  if(button.dataset.vocabDictionary){clickEvent.preventDefault();clickEvent.stopImmediatePropagation();query=button.dataset.vocabDictionary;navigate('dictionary');return}
   if(button.dataset.reviewOpen!==undefined){clickEvent.preventDefault();clickEvent.stopImmediatePropagation();vocabReviewOnly=true;vocabLevel='all';vocabScene='all';vocabSearch='';wordIndex=0;navigate('words');return}
   const level=button.dataset.vocabLevel,scene=button.dataset.vocabScene,index=button.dataset.vocabIndex,direction=button.dataset.vocabPage,dueToggle=button.dataset.vocabDue;
   if(level!==undefined||scene!==undefined||index!==undefined||direction||dueToggle!==undefined||['vocab-search-button','vocab-clear','learn','next-word'].includes(button.id)||button.dataset.review){
