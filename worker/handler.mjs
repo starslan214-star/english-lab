@@ -2,7 +2,7 @@
 import {getNews} from './news.mjs';
 import {getDictionaryDefinition,getDatamuseDefinition} from './dictionary.mjs';
 import {translateBaidu} from './baidu.mjs';
-import {getOpenBook} from './books.mjs';
+import {getOpenBook,getWordBookArchive} from './books.mjs';
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
 const allowedModels = new Set(['deepseek-flash', 'deepseek-v4-pro']);
@@ -56,6 +56,11 @@ async function deepSeek(path,key,options={}){
   return {response,data};
 }
 async function handleApi(request,env,path){
+  if(path.startsWith('/api/wordbooks/')&&request.method==='GET'){
+    const id=path.slice('/api/wordbooks/'.length);
+    if(!/^[a-z0-9-]{2,40}$/.test(id))return json({error:'词书编号无效。'},400);
+    try{return await getWordBookArchive(id)||json({error:'未找到这本词书。'},404)}catch{return json({error:'词书来源暂时无法连接，请稍后再试。'},503)}
+  }
   if(path.startsWith('/api/books/')&&request.method==='GET'){
     const id=path.slice('/api/books/'.length);
     if(!/^\d{1,6}$/.test(id))return json({error:'图书编号无效。'},400);

@@ -23,9 +23,12 @@ assert.match(await libraryUi.text(),/本地图书库/);
 const adaptiveGameUi=await worker.fetch(new Request(origin+'/adaptive-game.js'),env);
 assert.equal(adaptiveGameUi.status,200);
 assert.match(await adaptiveGameUi.text(),/自适应单词游戏/);
+const wordBooksUi=await worker.fetch(new Request(origin+'/wordbooks.js'),env);
+assert.equal(wordBooksUi.status,200);
+assert.match(await wordBooksUi.text(),/选择词书/);
 const versionUi=await worker.fetch(new Request(origin+'/version.js'),env);
 assert.equal(versionUi.status,200);
-assert.match(await versionUi.text(),/1\.5\.0/);
+assert.match(await versionUi.text(),/1\.6\.0/);
 const datamuseUi=await worker.fetch(new Request(origin+'/datamuse-dictionary.js'),env);
 assert.equal(datamuseUi.status,200);
 assert.match(await datamuseUi.text(),/Wiktionary \+ WordNet/);
@@ -111,6 +114,7 @@ try{
   assert.match(removed.headers.get('Set-Cookie'),/Max-Age=0/);
 }finally{globalThis.fetch=originalFetch}
 globalThis.fetch=async url=>{
+  if(String(url).includes('kajweb/dict'))return new Response(new Uint8Array([80,75,3,4]),{headers:{'Content-Type':'application/zip'}});
   if(String(url).includes('gutendex.com/books/11'))return new Response(JSON.stringify({title:"Alice's Adventures in Wonderland",authors:[{name:'Carroll, Lewis'}],formats:{'text/plain; charset=utf-8':'https://www.gutenberg.org/cache/epub/11/pg11.txt'}}));
   if(String(url).includes('gutenberg.org/cache/epub/11/'))return new Response('*** START OF THE PROJECT GUTENBERG EBOOK ALICE ***\n'+('Alice followed the White Rabbit into Wonderland.\n\n'.repeat(20))+'*** END OF THE PROJECT GUTENBERG EBOOK ALICE ***');
   if(String(url).includes('dictionaryapi.dev'))return new Response(JSON.stringify([{meanings:[{definitions:[{definition:'the power to do something',example:'She has the ability to learn quickly.'}]}]}]));
@@ -132,6 +136,10 @@ try{
   const openBook=await worker.fetch(new Request(origin+'/api/books/11'),{});
   assert.equal(openBook.status,200);
   assert.match((await openBook.json()).content,/White Rabbit/);
+  const wordBook=await worker.fetch(new Request(origin+'/api/wordbooks/cet4-core'),{});
+  assert.equal(wordBook.status,200);
+  assert.equal(wordBook.headers.get('Content-Type'),'application/zip');
+  assert.equal((await wordBook.arrayBuffer()).byteLength,4);
   const news=await worker.fetch(new Request(origin+'/api/news'),{});
   assert.equal(news.status,200);
   const items=(await news.json()).items;
